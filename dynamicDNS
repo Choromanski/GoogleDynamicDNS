@@ -1,0 +1,21 @@
+#!/bin/bash
+
+username="**USERNAME**"
+password="**PASSWORD**"
+address="**ADDRESS**"
+
+ipSites="ifconfig.me http://checkip.amazonaws.com icanhazip.com ipecho.net/plain ident.me bot.whatismyipaddress.com https://diagnostic.opendns.com/myip http://whatismyip.akamai.com"
+
+for i in $ipSites; do 
+    clientIP=$(curl -s $i)
+    echo $clientIP | grep -Eo "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" > /dev/null && break
+done
+
+addressIP=$(host $address ns-cloud-e1.googledomains.com | grep "$address" | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}")
+
+if [ "$clientIP" != "$addressIP" ];
+then
+    curl "https://$username:$password@domains.google.com/nic/update?hostname=$address&myip=$clientIP"
+else
+    echo "IP not changed"
+fi
